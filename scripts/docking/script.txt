@@ -1,0 +1,4 @@
+build start peptide "custom helix" AAAAAA -57,-47 rotLib Dunbrack
+addh
+#minimize nsteps 1000 cgsteps 500
+save AAAAAA.pdb
