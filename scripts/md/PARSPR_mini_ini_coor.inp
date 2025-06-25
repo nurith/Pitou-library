@@ -1,0 +1,117 @@
+* File: cdcwtgdp_water_mini_ini_coor.inp
+* Minimize initial coordinates
+*
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! set directory
+set DIR "/home/nurith/RasCDC42/"
+set TYPE "/home/nurith/RasCDC42/rac2_wt_gdp_2"
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+set ncwt 14  ! crystal water
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+bomlev 0
+
+! read topology
+open read card unit 10 name "/home/nurith/RasCDC42/top_all36_prot_na_topa21_hbj.inp"
+read rtf card unit 10
+close unit 10
+
+! read parameters
+open read card unit 10 name "/home/nurith/RasCDC42/par_all36_prot_na_topa21_hbj.inp"
+read param flex card unit 10
+close unit 10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+read sequence card
+* The sequence is NRP1
+*
+! Get NRP seq
+158
+GLY HSD MET PHE LYS CYS MET GLU ALA LEU GLY MET GLU          
+SER GLY GLU ILE HSD SER ASP GLN ILE THR ALA SER SER          
+GLN TYR SER THR ASN TRP SER ALA GLU ARG SER ARG LEU          
+ASN TYR PRO GLU ASN GLY TRP THR PRO GLY GLU ASP SER          
+TYR ARG GLU TRP ILE GLN VAL ASP LEU GLY LEU LEU ARG          
+PHE VAL THR ALA VAL GLY THR GLN GLY ALA ILE SER LYS          
+GLU THR LYS LYS LYS TYR TYR VAL LYS THR TYR LYS ILE          
+ASP VAL SER SER ASN GLY GLU ASP TRP ILE THR ILE LYS          
+GLU GLY ASN LYS PRO VAL LEU PHE GLN GLY ASN THR ASN          
+PRO THR ASP VAL VAL VAL ALA VAL PHE PRO LYS PRO LEU          
+ILE THR ARG PHE VAL ARG ILE LYS PRO ALA THR TRP GLU          
+THR GLY ILE SER MET ARG PHE GLU VAL TYR GLY CYS LYS          
+ILE THR                   
+
+generate NRP1 first GLYP last CTER setup
+
+patch DISU NRP1 6 NRP1 155
+
+! Get model in crystal structure
+read sequence card
+* The sequence is the peptide
+*
+6
+PRO ALA ARG SER PRO ARG
+
+generate GSA setup first ACP last CTER setup
+
+ic para
+
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_ini_coor.crd"
+read coor card unit 1
+close unit 1
+
+ic fill preserve
+ic build
+hbuild
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! Translate protein to the center
+coor stat sele all end
+coor trans xdir -?XAVE ydir -?YAVE zdir -?ZAVE sele all end
+
+! Minimization - side chains
+define BACKBONE select type N .or. type CA .or. type C .or. type O end
+cons fix sele BACKBONE end
+mini sd nstep 200
+mini sd nstep 200
+mini sd nstep 200
+mini sd nstep 200
+mini abnr nstep 100
+mini abnr nstep 100
+mini abnr nstep 100
+mini abnr nstep 100
+
+! Translate protein to the center
+coor stat sele all end
+coor trans xdir -?XAVE ydir -?YAVE zdir -?ZAVE sele all end
+coor stat sele all end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! Get the final coordinate
+open unit 1 write form name "/home/nurith/mlsc/docking/md/PARSPR_acet/PARSPR_acet_ini_config.crd"
+write coor card unit 1
+* crd file of protein
+*
+close unit 1
+
+! Get the final coordinate
+open unit 1 write form name "/home/nurith/mlsc/docking/md/PARSPR_acet/PARSPR_acet_ini_config.pdb"
+write coor pdb unit 1
+* pdb file of protein
+*
+close unit 1
+
+! Get the final coordinate
+open unit 1 write card name "/home/nurith/mlsc/docking/md/PARSPR_acet/PARSPR_acet_ini_config.psf
+write psf card unit 1
+* pdb file of protein
+*
+close unit 1
+!!!!!!!!!!!!!
+
+stop
+

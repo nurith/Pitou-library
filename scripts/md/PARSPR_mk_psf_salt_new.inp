@@ -1,0 +1,159 @@
+* File: cdcwtGDP_water_mk_psf_salt.inp
+* Generate combined coordinates for NMAD simulation
+*
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! set directory
+set DIR "/home/nurith/RasCDC42/"
+set TYPE "/home/nurith/RasCDC42/P115-rhogef-GDP-1"
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+set ncwt 14  ! crystal water
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+bomlev -2
+! read topology
+open read card unit 10 name "/home/nurith/RasCDC42/top_all36_prot_na_topa21_hbj.inp"
+read rtf card unit 10
+close unit 10
+
+! read parameters
+open read card unit 10 name "/home/nurith/RasCDC42/par_all36_prot_na_topa21_hbj.inp"
+read param flex card unit 10
+close unit 10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Get 1grn coordinates
+read sequence card
+* The sequence is NRP1
+*
+! Get NRP seq
+158
+GLY HSD MET PHE LYS CYS MET GLU ALA LEU GLY MET GLU          
+SER GLY GLU ILE HSD SER ASP GLN ILE THR ALA SER SER          
+GLN TYR SER THR ASN TRP SER ALA GLU ARG SER ARG LEU          
+ASN TYR PRO GLU ASN GLY TRP THR PRO GLY GLU ASP SER          
+TYR ARG GLU TRP ILE GLN VAL ASP LEU GLY LEU LEU ARG          
+PHE VAL THR ALA VAL GLY THR GLN GLY ALA ILE SER LYS          
+GLU THR LYS LYS LYS TYR TYR VAL LYS THR TYR LYS ILE          
+ASP VAL SER SER ASN GLY GLU ASP TRP ILE THR ILE LYS          
+GLU GLY ASN LYS PRO VAL LEU PHE GLN GLY ASN THR ASN          
+PRO THR ASP VAL VAL VAL ALA VAL PHE PRO LYS PRO LEU          
+ILE THR ARG PHE VAL ARG ILE LYS PRO ALA THR TRP GLU          
+THR GLY ILE SER MET ARG PHE GLU VAL TYR GLY CYS LYS          
+ILE THR                   
+
+generate NRP1 first GLYP last CTER setup
+
+patch DISU NRP1 6 NRP1 155
+
+read sequence card
+* The sequence is the peptide
+*
+6
+PRO ALA ARG SER PRO ARG
+
+generate GSA first ACP last CTER setup
+
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/PARSPR_acet_water_add_salt_system.crd"
+read coor card unit 1
+close unit 1
+
+set N ?nres
+
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_blk1.crd"
+read sequence coor unit 1
+generate BLK1 nodihedrals noangles first none last none
+close unit 1
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_blk1.crd"
+read coor card unit 1 offset @N
+close unit 1
+
+set N ?nres
+
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_blk2.crd"
+read sequence coor unit 1
+generate BLK2 nodihedrals noangles first none last none
+close unit 1
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_blk2.crd"
+read coor card unit 1 offset @N
+close unit 1
+
+set N ?nres
+
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_blk3.crd"
+read sequence coor unit 1
+generate BLK3 nodihedrals noangles first none last none
+close unit 1
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_blk3.crd"
+read coor card unit 1 offset @N
+close unit 1
+
+set N ?nres
+
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_blk4.crd"
+read sequence coor unit 1
+generate BLK4 nodihedrals noangles first none last none
+close unit 1
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_blk4.crd"
+read coor card unit 1 offset @N
+close unit 1
+
+set N ?nres
+
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_sod.crd"
+read sequence coor unit 1
+generate SODI noangle nodihedral
+close unit 1
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_sod.crd"
+read coor card unit 1 offset @N
+close unit 1
+
+set N ?nres
+
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_cla.crd"
+read sequence coor unit 1
+generate CHLO noangle nodihedral
+close unit 1
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_cla.crd"
+read coor card unit 1 offset @N
+close unit 1
+
+!!!!!!!!!!!!!!!!!! 
+! Stat for proteins
+coor stat sele segid NRP1 end
+coor stat sele segid NRP1 .and. type CA end
+
+coor stat sele segid GSA end
+coor stat sele segid GSA .and. type CA end
+
+! Stat for salt
+coor stat sele resn SOD end
+coor stat sele resn CLA end
+
+! Stat for water
+coor stat sele segid BLK1 .and. type OH2 end
+coor stat sele segid BLK2 .and. type OH2 end
+coor stat sele segid BLK3 .and. type OH2 end
+coor stat sele segid BLK4 .and. type OH2 end
+coor stat sele type OH2 end
+!!!!!!!!!!!!!!!!!!
+
+! Write psf file in charmm format
+open write card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/PARSPR_acet_namd_salt_charmm.psf"
+write psf card unit 1
+close unit 1
+
+! Write psf file in xplor format
+open write card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/PARSPR_acet_namd_salt_xplor.psf"
+write psf card xplor unit 1
+close unit 1
+
+!!!!!!!!!!!!!!!!!!
+
+! Get the final coordinates in pdb
+open write form unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/PARSPR_acet_namd_salt_charmm.pdb"
+write coor pdb unit 1
+close unit 1
+
+stop
+

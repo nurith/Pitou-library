@@ -1,0 +1,125 @@
+* File: cdcwtgtp_water_water_overlay_1st.inp
+* Generates the bulk overlay of water for the system 
+* Use simplified method for water addition
+*
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! set directory
+set DIR "/home/nurith/RasCDC42/"
+set TYPE "/home/nurith/RasCDC42/P115-rhogef-GTP-2"
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+set ncwt 14  ! crystal water
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! set initial numbers of system
+set bs 90.0             ! cell dimension
+! set number of water; read from water directory
+set nwt1 6290
+set nwt2 6289
+set nwt3 6213
+set nwt4 6212
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+bomlev -2
+
+! read topology
+open read card unit 10 name "/home/nurith/RasCDC42/top_all36_prot_na_topa21_hbj.inp"
+read rtf card unit 10
+close unit 10
+
+! read parameters
+open read card unit 10 name "/home/nurith/RasCDC42/par_all36_prot_na_topa21_hbj.inp"
+read param flex card unit 10
+close unit 10
+
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/PARSPR_acet_ini_config.crd" 
+read sequence coor unit 1
+generate JANG setup noangle nodihedrals first none last none
+close unit 1
+open read card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/PARSPR_acet_ini_config.crd"
+read coor card unit 1
+close unit 1
+
+delete atom sele .not. INIT end
+scalar charge set 0.0
+
+set N ?nres
+
+read sequence TIP3 @nwt1
+generage OV11 noangle nodihedral
+read sequence TIP3 @nwt2
+generage OV12 noangle nodihedral
+
+open read card unit 1 name "/home/nurith/RasCDC42/rhowtgtp_water/coor/water_large_box_90.0_1.crd"
+read coor card unit 1 offset @N
+close unit 1
+
+open write unit 23 card name "/home/nurith/mlsc/docking/md/PARSPR_acet/water_large_box_90.0_1.pdb"
+write coordinates pdb sele segid OV11 .or. segid OV12 end unit 23
+
+set N ?nres
+
+read sequence TIP3 @nwt3
+generage OV21 noangle nodihedral
+read sequence TIP3 @nwt4
+generage OV22 noangle nodihedral
+
+open read card unit 1 name "/home/nurith/RasCDC42/rhowtgtp_water/coor/water_large_box_90.0_2.crd"
+read coor card unit 1 offset @N
+close unit 1
+
+open write unit 23 card name "/home/nurith/mlsc/docking/md/PARSPR_acet/water_large_box_90.0_2.pdb"
+write coordinates pdb sele segid OV21 .or. segid OV22 end unit 23
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! Initial overlay of each water box 
+
+! Lower layer
+coor stat sele segid OV1* end
+define COUNT1 sele ((type OH2 .and. segid OV1*) .and. (segid JANG .around. 2.6)) end
+delete atoms sele .byres. COUNT1 end
+
+! Upper layer
+coor stat sele segid OV2* end
+define COUNT2 sele ((type OH2 .and. segid OV2*) .and. (segid JANG .around. 2.6)) end
+delete atoms sele .byres. COUNT2 end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+delete atoms sele segid JANG end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+open write card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_water_ov11.crd"
+write coor sele segid OV11 end card unit 1
+* overlay of waters
+*
+delete atoms sele segid OV11 end
+
+open write card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_water_ov12.crd"
+write coor sele segid OV12 end card unit 1
+* overlay of waters
+*
+
+delete atoms sele segid OV12 end
+
+
+! Write water coordinates
+open write card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_water_ov21.crd"
+write coor sele segid OV21 end card unit 1
+* overlay of waters
+*
+
+delete atoms sele segid OV21 end
+
+! Write water coordinates
+open write card unit 1 name "/home/nurith/mlsc/docking/md/PARSPR_acet/temp_water_ov22.crd"
+write coor sele segid OV22 end card unit 1
+* overlay of waters
+*
+
+stop
+
