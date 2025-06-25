@@ -1,0 +1,25 @@
+package require cafe 1.0
+
+mmpbsa -top       PARSPR_acet_namd_salt_charmm.psf \
+       -trj       PARSPR_acet_namd_prod_merged_50_ns.dcd \
+       -out       mmpbsa.log \
+       -par       ../par_all36_prot_na_topa21_hbj.inp \
+       -com       "segname NRP1 GSA" \
+       -rec       "segname NRP1" \
+       -lig       "segname GSA" \
+       -first     0 \
+       -last      -1 \
+       -stride    1 \
+       -mm        1 \
+       -pb        2 \
+       -pb_exe    apbs \
+       -mm_exe   /home/nurith/Downloads/NAMD_2.14_Linux-x86_64-multicore/namd2 \
+       -pb_rad    mparse \
+       -pb_bcfl   mdh \
+       -pb_chgm   spl2 \
+       -sa        1 \
+       -sa_rad    mparse \
+       -sa_gamma  0.00542 \
+       -sa_beta   0.92
+
+quit
